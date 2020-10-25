@@ -24,7 +24,6 @@ Welcome Screen View Here
 class WelcomeView(arcade.View):
     def __init__(self):
         super().__init__()
-        self.ui_manager = UIManager()
 
     def on_show(self):
         play_btn = arcade.load_texture("imgs/playBTN.png")
