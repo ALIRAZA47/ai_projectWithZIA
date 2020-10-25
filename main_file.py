@@ -5,7 +5,6 @@ import random
 from arcade import color
 import arcade.gui
 import arcade.application
-from arcade.gui import UIManager
 
 
 # constants here
