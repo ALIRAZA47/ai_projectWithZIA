@@ -3,9 +3,6 @@ import arcade
 import os
 import random
 from arcade import color
-import arcade.gui
-import arcade.application
-
 
 # constants here
 SCREEN_HEIGHT = 800
