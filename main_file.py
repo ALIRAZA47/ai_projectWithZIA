@@ -2,20 +2,20 @@ from PIL.Image import FLIP_LEFT_RIGHT
 import arcade
 import os
 import random
+import math
 from arcade import color
+from arcade.texture import load_texture
 
 # constants here
 SCREEN_HEIGHT = 800
 SCREEN_WIDTH = 800
 GAME_SCREEN_TITLE = "Snails Game by ARK and Zia K."
-
-
+SIZE_OF_GRID= 10
+CELL_SIZE = math.ceil(SCREEN_HEIGHT - 200) / SIZE_OF_GRID
+MARGIN = 100
 
 
 # section for defining class
-
-
-
 
 """
 Welcome Screen View Here
@@ -54,7 +54,6 @@ class WelcomeView(arcade.View):
                 welcome_done = InstructionWindow()
                 self.window.show_view(welcome_done) 
 
-
 class InstructionWindow(arcade.View):
     def on_show(self):
         arcade.set_background_color(arcade.color.ALMOND)
@@ -78,16 +77,16 @@ class InstructionWindow(arcade.View):
             bold='TRUE'
         )"""
         arcade.draw_lrwh_rectangle_textured(160, 580, 500, 200, welcomePNG)
-        arcade.draw_lrwh_rectangle_textured(229, 410, 100, 100, start_btn)
-        arcade.draw_lrwh_rectangle_textured(500, 415, 100, 100, guide_btn)
-        arcade.draw_lrwh_rectangle_textured(350, 210, 100, 100, exit_btn)
-
-
+        arcade.draw_lrwh_rectangle_textured(229, 410, MARGIN, MARGIN, start_btn)
+        arcade.draw_lrwh_rectangle_textured(500, 415, MARGIN, MARGIN, guide_btn)
+        arcade.draw_lrwh_rectangle_textured(350, 210, MARGIN, MARGIN, exit_btn)
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
         if button == arcade.MOUSE_BUTTON_LEFT:
             if(x >=229 and x <= 329 and y >= 410 and y <= 510):
                 # Start of Game View Here
-               print("Play Button Pressed")   
+               print("Play Button Pressed")
+               start_game = MainGame()
+               self.window.show_view(start_game)   
             if( x >= 500 and x <= 600 and y >= 410 and y <= 510):
                 # Guide module or View Here
                 print("Guide Button Pressed")
@@ -95,7 +94,65 @@ class InstructionWindow(arcade.View):
                 # Exite Module here 
                 print(" Button Pressed")
                 exit(0)    
+# main game class here
+class MainGame(arcade.View):
+    def __init__(self):
+        super().__init__()
+        self.gameBoard = [[0]*10]*10
+        self.initializeBoard()
+        self.row = 0
+        self.column = 0
+        print(self.gameBoard)
 
+    def on_show(self):
+        arcade.set_background_color(arcade.color.ALMOND)
+    def initializeBoard(self):
+        
+        self.gameBoard = [ [0]*10 for _ in range(10)]
+        self.gameBoard[0][0] = 1
+        self.gameBoard[9][9] = 2
+    def initializeGrid(self):
+        for i in range(SIZE_OF_GRID+1):
+            #x-axis
+            arcade.draw_line(MARGIN+CELL_SIZE*i, MARGIN, CELL_SIZE*i+MARGIN, SCREEN_HEIGHT - MARGIN, arcade.color.BUBBLES, 3)
+            #y-axis
+            arcade.draw_line(MARGIN, MARGIN+CELL_SIZE*i, SCREEN_WIDTH - MARGIN, CELL_SIZE*i+MARGIN, arcade.color.BUBBLES, 3)
+
+
+    def on_draw(self):
+        bkg_game = arcade.load_texture("imgs/gameBKG.png")
+        snail_p1 = arcade.load_texture("imgs/snail1.png")
+        snail_p2 = arcade.load_texture("imgs/snail2.png")
+        splash_p1 = arcade.load_texture("imgs/snail1.png")
+        splash_p2 = arcade.load_texture("imgs/snail2.png")
+        arcade.start_render()
+        arcade.draw_lrwh_rectangle_textured(0, 0,
+            SCREEN_WIDTH, SCREEN_HEIGHT ,
+            bkg_game
+        )
+        self.initializeGrid()
+        snail_to_draw = arcade.texture
+        if ( self.gameBoard[self.row][self.column] == 1):
+            snail_to_draw = snail_p1
+        elif ( self.gameBoard[self.row][self.column] == 2):
+            snail_to_draw = snail_p2
+        elif ( self.gameBoard[self.row][self.column] == -1):
+            snail_to_draw = splash_p1
+        elif ( self.gameBoard[self.row][self.column] == -2):
+            snail_to_draw = splash_p2   
+        start_x = (self.column * CELL_SIZE) + MARGIN
+        start_y = (self.row * CELL_SIZE) + MARGIN       
+        arcade.draw_lrwh_rectangle_textured(start_x, start_y, CELL_SIZE, CELL_SIZE, snail_to_draw)
+    def find_RowCol(self, x, y):
+        self.column = int( (x - MARGIN) / CELL_SIZE )
+        self.row = int( (y - MARGIN) // CELL_SIZE )
+
+    def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
+        if (button == arcade.MOUSE_BUTTON_LEFT):
+            self.find_RowCol(x, y)
+            print(self.row, self.column)
+            
+            
 
 #end of classes section
 
