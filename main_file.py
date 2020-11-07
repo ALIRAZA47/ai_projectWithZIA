@@ -1,10 +1,11 @@
+from logging import exception
 from PIL.Image import FLIP_LEFT_RIGHT
 import arcade
 import os
 import random
 import math
 from arcade import color
-from arcade.texture import load_texture
+from arcade.texture import cleanup_texture_cache, load_texture
 
 # constants here
 SCREEN_HEIGHT = 800
@@ -92,16 +93,17 @@ class InstructionWindow(arcade.View):
                 print("Guide Button Pressed")
             if( x >= 350 and x <= 450 and y >= 210 and y <=310):
                 # Exite Module here 
-                print(" Button Pressed")
+                print("Exit Button Pressed")
                 exit(0)    
 # main game class here
 class MainGame(arcade.View):
     def __init__(self):
         super().__init__()
         self.gameBoard = [[0]*10]*10
+        self.playerTurn = "P1"
+        self.score_player1 = 0
+        self.score_player2 = 0
         self.initializeBoard()
-        self.row = 0
-        self.column = 0
         print(self.gameBoard)
 
     def on_show(self):
@@ -118,47 +120,148 @@ class MainGame(arcade.View):
             #y-axis
             arcade.draw_line(MARGIN, MARGIN+CELL_SIZE*i, SCREEN_WIDTH - MARGIN, CELL_SIZE*i+MARGIN, arcade.color.BUBBLES, 3)
 
-
+    # def on_update():
+    #     pass
+        
     def on_draw(self):
         bkg_game = arcade.load_texture("imgs/gameBKG.png")
         snail_p1 = arcade.load_texture("imgs/snail1.png")
         snail_p2 = arcade.load_texture("imgs/snail2.png")
-        splash_p1 = arcade.load_texture("imgs/snail1.png")
-        splash_p2 = arcade.load_texture("imgs/snail2.png")
+        splash_p1 = arcade.load_texture("imgs/splash1.png")
+        splash_p2 = arcade.load_texture("imgs/splash2.png")
+        box1 = arcade.load_texture("imgs/box1.png")
+        box2 = arcade.load_texture("imgs/box2.png")
+        vrs = arcade.load_texture("imgs/vrs.png")
         arcade.start_render()
+        
         arcade.draw_lrwh_rectangle_textured(0, 0,
             SCREEN_WIDTH, SCREEN_HEIGHT ,
             bkg_game
         )
         self.initializeGrid()
-        snail_to_draw = arcade.texture
-        if ( self.gameBoard[self.row][self.column] == 1):
-            snail_to_draw = snail_p1
-        elif ( self.gameBoard[self.row][self.column] == 2):
-            snail_to_draw = snail_p2
-        elif ( self.gameBoard[self.row][self.column] == -1):
-            snail_to_draw = splash_p1
-        elif ( self.gameBoard[self.row][self.column] == -2):
-            snail_to_draw = splash_p2   
-        start_x = (self.column * CELL_SIZE) + MARGIN
-        start_y = (self.row * CELL_SIZE) + MARGIN       
-        arcade.draw_lrwh_rectangle_textured(start_x, start_y, CELL_SIZE, CELL_SIZE, snail_to_draw)
+        arcade.draw_lrwh_rectangle_textured(250, 670, 300, 160, vrs)
+        arcade.draw_lrwh_rectangle_textured(0, 185, CELL_SIZE + 30, CELL_SIZE + 30, box1)
+        arcade.draw_text("Score \nPlayer \nOne",10, 185+CELL_SIZE + 30, color=arcade.color.WHITE, font_size=20, align="left")
+        arcade.draw_text("Score \nPlayer \nOne",10, 185+CELL_SIZE + 30, color=arcade.color.WHITE, font_size=20, align="left")
+        arcade.draw_text("Score \nPlayer \nOne",10, 185+CELL_SIZE + 30, color=arcade.color.WHITE, font_size=20, align="left")
+        arcade.draw_text("Score \nPlayer \nOne",10, 185+CELL_SIZE + 30, color=arcade.color.WHITE, font_size=20, align="left")
+        arcade.draw_text("Score \nPlayer \nOne",10, 185+CELL_SIZE + 30, color=arcade.color.WHITE, font_size=20, align="left")
+
+        arcade.draw_text(str(self.score_player1),20, 200, color=arcade.color.WHITE, font_size=40, align="center")
+        #score box of 2nd player
+        arcade.draw_lrwh_rectangle_textured(SCREEN_HEIGHT-MARGIN, SCREEN_HEIGHT-MARGIN-(CELL_SIZE*2)
+                                            ,CELL_SIZE + 30, CELL_SIZE + 30, box2)
+        arcade.draw_text("Score \nPlayer \nTwo",710, 700-MARGIN*2, color=arcade.color.WHITE, font_size=20, align="left")
+        arcade.draw_text("Score \nPlayer \nTwo",710, 700-MARGIN*2, color=arcade.color.WHITE, font_size=20, align="left")
+        arcade.draw_text("Score \nPlayer \nTwo",710, 700-MARGIN*2, color=arcade.color.WHITE, font_size=20, align="left")
+        arcade.draw_text("Score \nPlayer \nTwo",710, 700-MARGIN*2, color=arcade.color.WHITE, font_size=20, align="left")
+        arcade.draw_text("Score \nPlayer \nTwo",710, 700-MARGIN*2, color=arcade.color.WHITE, font_size=20, align="left")
+        arcade.draw_text(str(self.score_player2),710, SCREEN_HEIGHT - MARGIN*2, color=arcade.color.WHITE, font_size=40, align="center")
+        arcade.draw_text(str(self.score_player2),710, SCREEN_HEIGHT - MARGIN*2, color=arcade.color.WHITE, font_size=40, align="center")
+
+        # arcade.draw_text(str(self.score_player1),20, 200, color=arcade.color.WHITE, font_size=40, align="center")                                    
+        for rowLoop in range(SIZE_OF_GRID):
+            # print(self.gameBoard)
+            start_x = 0
+            start_y = 0
+            snail_to_draw = None
+            for colLoop in range(SIZE_OF_GRID):
+                snail_to_draw = arcade.texture
+                if ( self.gameBoard[rowLoop][colLoop] == 1):
+                    snail_to_draw = snail_p1
+                    start_x = (colLoop * CELL_SIZE) + MARGIN
+                    start_y = (rowLoop * CELL_SIZE) + MARGIN       
+                    arcade.draw_lrwh_rectangle_textured(start_x, start_y, CELL_SIZE, CELL_SIZE, snail_to_draw)
+                elif ( self.gameBoard[rowLoop][colLoop] == 2):
+                    snail_to_draw = snail_p2
+                    start_x = (colLoop * CELL_SIZE) + MARGIN
+                    start_y = (rowLoop * CELL_SIZE) + MARGIN    
+                    # print(self.gameBoard[rowLoop][colLoop])   
+                    arcade.draw_lrwh_rectangle_textured(start_x, start_y, CELL_SIZE, CELL_SIZE, snail_to_draw)
+                    # self.gameBoard[rowLoop][colLoop] = -2
+                elif ( self.gameBoard[rowLoop][colLoop] == -1):
+                    snail_to_draw = snail_p2
+                    start_x = (colLoop * CELL_SIZE) + MARGIN
+                    start_y = (rowLoop * CELL_SIZE) + MARGIN    
+                    # print(self.gameBoard[rowLoop][colLoop])   
+                    arcade.draw_lrwh_rectangle_textured(start_x, start_y, CELL_SIZE, CELL_SIZE, splash_p1)
+                elif ( self.gameBoard[rowLoop][colLoop] == -2):
+                    snail_to_draw = snail_p2
+                    start_x = (colLoop * CELL_SIZE) + MARGIN
+                    start_y = (rowLoop * CELL_SIZE) + MARGIN    
+                    # print(self.gameBoard[rowLoop][colLoop])   
+                    arcade.draw_lrwh_rectangle_textured(start_x, start_y, CELL_SIZE, CELL_SIZE, splash_p2)
+
+
     def find_RowCol(self, x, y):
-        self.column = int( (x - MARGIN) / CELL_SIZE )
-        self.row = int( (y - MARGIN) // CELL_SIZE )
+        column = int( (x - MARGIN) / CELL_SIZE )
+        row = int( (y - MARGIN) // CELL_SIZE )
+        return row, column
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
-        if (button == arcade.MOUSE_BUTTON_LEFT):
-            self.find_RowCol(x, y)
-            print(self.row, self.column)
-            
-            
+        print(x,  y)
+        if(x>=MARGIN and x <= SCREEN_WIDTH - MARGIN and y >= MARGIN and y <= SCREEN_HEIGHT - MARGIN):
+            if (button == arcade.MOUSE_BUTTON_LEFT):
+                row, column = self.find_RowCol(x, y)
+                if self.playerTurn == "P1":
+                    if self.evaluateMove(row, column):
+                        self.gameBoard[row][column] = 1
+                        self.score_player1 += 1
+                    self.playerTurn = "P2"
+                elif self.playerTurn ==  "P2":
+                    if self.evaluateMove(row, column):
+                        self.gameBoard[row][column] = 2
+                        self.score_player2 += 1
+                    self.playerTurn = "P1"  
+        else:
+            if self.playerTurn == "P1":
+                self.playerTurn = "P2"
+            elif self.playerTurn == "P2":
+                self.playerTurn = "P1"
+            else:
+                raise exception("Invalid Turn")
+
+    def evaluateMove(self, row, column):
+        if self.playerTurn == "P1":
+            if self.gameBoard[row - 1][column] == 1 or self.gameBoard[row][column - 1] == 1:
+                if self.gameBoard[row - 1][column] == 1:
+                    self.gameBoard[row - 1][column] = -1
+                else:
+                    self.gameBoard[row][column - 1] = -1    
+                return True
+            elif self.gameBoard[row - 1][column] == -1 or self.gameBoard[row][column - 1] == -1:
+                return True
+            if self.gameBoard[row + 1][column] == 1 or self.gameBoard[row][column + 1] == 1:
+                if self.gameBoard[row +1][column] == 1:
+                    self.gameBoard[row + 1][column] = -1
+                else:
+                    self.gameBoard[row][column + 1] = -1    
+                return True
+            elif self.gameBoard[row + 1][column] == -1 or self.gameBoard[row][column + 1] == -1:
+                if self.gameBoard[row + 1][column] == -1:
+                    self.gameBoard[row][column] = -1
+                return True    
+            else:
+                return False
+        if self.playerTurn == "P2":
+            if self.gameBoard[row - 1][column] == 2 or self.gameBoard[row][column - 1] == 2:
+                return True
+            elif self.gameBoard[row - 1][column] == -2 or self.gameBoard[row][column - 1] == -2:
+                return True
+            elif row+1:    
+                if self.gameBoard[row + 1][column] == 2 or self.gameBoard[row][column + 1] == 2:
+                    return True
+                elif self.gameBoard[row + 1][column] == -2 or self.gameBoard[row][column + 1] == -2:
+                    return True    
+            else:
+                return False                 
+
 
 #end of classes section
 
 def main():
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_SCREEN_TITLE)
-    welcome_view = WelcomeView()
+    welcome_view = MainGame()
     window.show_view(welcome_view)
     arcade.run()
 
