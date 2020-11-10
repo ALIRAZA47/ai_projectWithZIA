@@ -213,7 +213,6 @@ class MainGame(arcade.View):
             return player2Location[0], player2Location[1]    
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
-        print(x,  y)
         if(x>=MARGIN and x <= SCREEN_WIDTH - MARGIN and y >= MARGIN and y <= SCREEN_HEIGHT - MARGIN):
             if (button == arcade.MOUSE_BUTTON_LEFT):
                 row, column = self.find_RowCol(x, y)
@@ -223,6 +222,7 @@ class MainGame(arcade.View):
                         self.score_player1 += 1
                     self.playerTurn = "P2"
                 elif self.playerTurn ==  "P2":
+                    # print(row, column)
                     if self.evaluateMove(row, column):
                         self.gameBoard[row][column] = 2
                         self.score_player2 += 1
@@ -236,6 +236,7 @@ class MainGame(arcade.View):
                 raise exception("Invalid Turn")
 
     def evaluateMove(self, row, column):
+       #condions for Player -1 
         if self.playerTurn == "P1":
             if (self.gameBoard[row - 1][column] == 1 or self.gameBoard[row][column - 1] == 1) and (self.gameBoard[row][column] == 0):
                 if self.gameBoard[row - 1][column] == 1:
@@ -243,16 +244,52 @@ class MainGame(arcade.View):
                 else:
                     self.gameBoard[row][column - 1] = -1    
                 return True
-            elif (self.gameBoard[row + 1][column] == 1 or self.gameBoard[row][column + 1] == 1) and (self.gameBoard[row][column] == 0):
-                if self.gameBoard[row +1][column] == 1:
-                    self.gameBoard[row + 1][column] = -1
-                else:
-                    self.gameBoard[row][column + 1] = -1    
-                return True
+            elif row + 1 < SIZE_OF_GRID and column + 1 < SIZE_OF_GRID:    
+                if (self.gameBoard[row + 1][column] == 1 or self.gameBoard[row][column + 1] == 1) and (self.gameBoard[row][column] == 0):
+                    if self.gameBoard[row +1][column] == 1:
+                        self.gameBoard[row + 1][column] = -1
+                    else:
+                        self.gameBoard[row][column + 1] = -1    
+                    return True
             elif (self.gameBoard[row][column] == -1):
-                pass
+                if self.gameBoard[row - 1][column] == 1:
+                    iteri = row
+                    while(iteri < SIZE_OF_GRID):
+                        if(self.gameBoard[iteri + 1][column] == 0):
+                            self.gameBoard[iteri][column] = 1
+                            self.gameBoard[row - 1][column] = -1
+                            return False
+                        iteri = iteri + 1
+                elif self.gameBoard[row + 1][column] == 1:
+                    iteri = row
+                    while(iteri >= 0):
+                        if(self.gameBoard[iteri - 1][column] == 0):
+                            self.gameBoard[iteri][column] = 1
+                            self.gameBoard[row + 1][column] = -1
+                            return False
+                        iteri = iteri - 1
+                elif self.gameBoard[row ][column - 1] == 1:
+                    iteri = column
+                    while(iteri < SIZE_OF_GRID):
+                        if(self.gameBoard[row][iteri + 1] == 0):
+                            self.gameBoard[row][iteri] = 1
+                            self.gameBoard[row][column - 1] = -1
+                            return False
+                        iteri = iteri + 1
+                elif self.gameBoard[row][column + 1] == 1:
+                    iteri = column
+                    while(iteri >= 0):
+                        if(self.gameBoard[row][iteri - 1] == 0):
+                            self.gameBoard[row][iteri] = 1
+                            self.gameBoard[row][column + 1] = -1
+                            return False
+                        iteri = iteri - 1                     
+                else:
+                    return False
             return False
+       #Conditionns for Player 2     
         if self.playerTurn == "P2":
+            print(self.gameBoard[row][column])
             if (self.gameBoard[row - 1][column] == 2 or self.gameBoard[row][column - 1] == 2) and (self.gameBoard[row][column] == 0):
                 if self.gameBoard[row - 1][column] == 2:
                     self.gameBoard[row - 1][column] = -2
@@ -274,8 +311,43 @@ class MainGame(arcade.View):
                 if (self.gameBoard[row][column + 1] == 2) and self.gameBoard[row][column] == 0:
                     self.gameBoard[row][column + 1] = -2
                     return True                
-            elif (self.gameBoard[row][column] == -2):
-                pass
+            if (self.gameBoard[row][column] == -2):
+                print("entered here")
+                if self.gameBoard[row - 1][column] == 2:
+                    iteri = row
+                    while(iteri < SIZE_OF_GRID):
+                        if(self.gameBoard[iteri + 1][column] == 0):
+                            self.gameBoard[iteri][column] = 2
+                            self.gameBoard[row - 1][column] = -2
+                            return False
+                        iteri = iteri + 1
+                elif self.gameBoard[row + 1][column] == 2:
+                    iteri = row
+                    while(iteri >= 0):
+                        if(self.gameBoard[iteri - 1][column] == 0):
+                            self.gameBoard[iteri][column] = 2
+                            self.gameBoard[row + 1][column] = -2
+                            return False
+                        iteri = iteri - 1
+                elif self.gameBoard[row ][column - 1] == 2:
+                    iteri = column
+                    while(iteri < SIZE_OF_GRID):
+                        if(self.gameBoard[row][iteri + 1] == 0):
+                            self.gameBoard[row][iteri] = 2
+                            self.gameBoard[row][column - 1] = -2
+                            return False
+                        iteri = iteri + 1
+                elif self.gameBoard[row][column + 1] == 2:
+                    iteri = column
+                    while(iteri >= 0):
+                        if(self.gameBoard[row][iteri - 1] == 0):
+                            self.gameBoard[row][iteri] = 2
+                            self.gameBoard[row][column + 1] = -2
+                            return False
+                        iteri = iteri - 1                     
+                else:
+                    return False
+
             return False                 
 
 
