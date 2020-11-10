@@ -194,9 +194,23 @@ class MainGame(arcade.View):
 
 
     def find_RowCol(self, x, y):
-        column = int( (x - MARGIN) / CELL_SIZE )
+        column = int( (x - MARGIN) // CELL_SIZE )
         row = int( (y - MARGIN) // CELL_SIZE )
         return row, column
+    def getPlayerLocation(self,playerName):
+        player1Location = None
+        player2Location = None
+        for i in range(SIZE_OF_GRID):
+            for j in range(SIZE_OF_GRID):
+                if self.gameBoard[i][j] == 1:
+                    player1Location = [i,j]
+                elif self.gameBoard[i][j] == 2:
+                    player2Location = [i,j]                        
+
+        if playerName == "P1":
+            return player1Location[0], player1Location[1]
+        if playerName == "P1":
+            return player2Location[0], player2Location[1]    
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
         print(x,  y)
@@ -223,38 +237,46 @@ class MainGame(arcade.View):
 
     def evaluateMove(self, row, column):
         if self.playerTurn == "P1":
-            if self.gameBoard[row - 1][column] == 1 or self.gameBoard[row][column - 1] == 1:
+            if (self.gameBoard[row - 1][column] == 1 or self.gameBoard[row][column - 1] == 1) and (self.gameBoard[row][column] == 0):
                 if self.gameBoard[row - 1][column] == 1:
                     self.gameBoard[row - 1][column] = -1
                 else:
                     self.gameBoard[row][column - 1] = -1    
                 return True
-            elif self.gameBoard[row - 1][column] == -1 or self.gameBoard[row][column - 1] == -1:
-                return True
-            if self.gameBoard[row + 1][column] == 1 or self.gameBoard[row][column + 1] == 1:
+            elif (self.gameBoard[row + 1][column] == 1 or self.gameBoard[row][column + 1] == 1) and (self.gameBoard[row][column] == 0):
                 if self.gameBoard[row +1][column] == 1:
                     self.gameBoard[row + 1][column] = -1
                 else:
                     self.gameBoard[row][column + 1] = -1    
                 return True
-            elif self.gameBoard[row + 1][column] == -1 or self.gameBoard[row][column + 1] == -1:
-                if self.gameBoard[row + 1][column] == -1:
-                    self.gameBoard[row][column] = -1
-                return True    
-            else:
-                return False
+            elif (self.gameBoard[row][column] == -1):
+                pass
+            return False
         if self.playerTurn == "P2":
-            if self.gameBoard[row - 1][column] == 2 or self.gameBoard[row][column - 1] == 2:
+            if (self.gameBoard[row - 1][column] == 2 or self.gameBoard[row][column - 1] == 2) and (self.gameBoard[row][column] == 0):
+                if self.gameBoard[row - 1][column] == 2:
+                    self.gameBoard[row - 1][column] = -2
+                else:
+                    self.gameBoard[row][column - 1] = -2    
                 return True
-            elif self.gameBoard[row - 1][column] == -2 or self.gameBoard[row][column - 1] == -2:
-                return True
-            elif row+1:    
-                if self.gameBoard[row + 1][column] == 2 or self.gameBoard[row][column + 1] == 2:
+            elif (row + 1 <= SIZE_OF_GRID -1) and (column + 1 <= SIZE_OF_GRID -1):
+                if (self.gameBoard[row + 1][column] == 2 or self.gameBoard[row][column + 1] == 2) and (self.gameBoard[row][column] == 0):
+                    if self.gameBoard[row +1][column] == 2:
+                        self.gameBoard[row + 1][column] = -2
+                    else:
+                        self.gameBoard[row][column + 1] = -2    
                     return True
-                elif self.gameBoard[row + 1][column] == -2 or self.gameBoard[row][column + 1] == -2:
-                    return True    
-            else:
-                return False                 
+            elif (row + 1 <= SIZE_OF_GRID -1) and (column + 1 >= SIZE_OF_GRID):
+                if (self.gameBoard[row + 1][column] == 2) and self.gameBoard[row][column] == 0:
+                    self.gameBoard[row + 1][column] = -2
+                    return True 
+            elif (column + 1 <= SIZE_OF_GRID -1) and (row + 1 >= SIZE_OF_GRID):
+                if (self.gameBoard[row][column + 1] == 2) and self.gameBoard[row][column] == 0:
+                    self.gameBoard[row][column + 1] = -2
+                    return True                
+            elif (self.gameBoard[row][column] == -2):
+                pass
+            return False                 
 
 
 #end of classes section
